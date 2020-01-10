@@ -1,6 +1,6 @@
 Name: libndp
 Version: 1.2
-Release: 7%{?dist}
+Release: 9%{?dist}
 Summary: Library for Neighbor Discovery Protocol
 Group: System Environment/Libraries
 License: LGPLv2+
@@ -14,6 +14,9 @@ Patch3: 0003-libndp-add-option-flags-to-send-messages.patch
 Patch4: 0004-ndptool-add-option-to-send-messages-types.patch
 Patch5: 0005-libndp-fix-type-of-field-na-in-struct-ndp_msgna.patch
 Patch6: 0006-libndp-revert-API-change-for-ndp_msg_send-and-add-nd.patch
+Patch7: 0007-ndptool-add-T-target-support.patch
+Patch8: 0008-ndptool-fix-target-parameter-typo.patch
+Patch9: 0009-libndp-close-sockfd-after-using-to-avoid-handle-leak.patch
 
 %description
 This package contains a library which provides a wrapper
@@ -38,6 +41,9 @@ necessary for developing programs using libndp.
 %patch4 -p1 -b .opts-to-send-msgs-types
 %patch5 -p1 -b .fix-type-of-na
 %patch6 -p1 -b .revert-api-change-for-ndp_msg_send
+%patch7 -p1 -b .support-target-for-ns
+%patch8 -p1 -b .fix-target-parameter-typo
+%patch9 -p1 -b .close-sockfd-after-using
 
 %build
 %configure --disable-static
@@ -63,6 +69,10 @@ find $RPM_BUILD_ROOT -name \*.la -delete
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Tue Dec 18 2018 Hangbin Liu <haliu@redhat.com> - 1.2-8
+- ndptool: add -T target support
+- ndptool: fix target parameter typo
+
 * Tue May 17 2016 Eric Garver <egarver@redhat.com> - 1.2-7
 - libndp: add option flags to send messages
 - ndptool: add option to send messages types
