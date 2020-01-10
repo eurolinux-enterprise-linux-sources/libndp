@@ -1,0 +1,37 @@
+From d0ea3eccf42e4cec59b057474f844fc4f616d4de Mon Sep 17 00:00:00 2001
+From: Thomas Haller <thaller@redhat.com>
+Date: Thu, 10 Mar 2016 10:16:05 +0100
+Subject: [PATCH 5/6] libndp: fix type of field "na" in "struct ndp_msgna"
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Otherwise, compilation fails since commit cb1ab5fc8b:
+
+   libndp.c: In function ‘ndp_msgna_flag_router’:
+   libndp.c:992:18: error: ‘struct nd_neighbor_solicit’ has no member named ‘nd_na_hdr’
+     return msgna->na->nd_na_flags_reserved & ND_NA_FLAG_ROUTER;
+
+Fixes: dfed476eee ("lib: setup first pointer in all type-specific structures at once")
+Signed-off-by: Thomas Haller <thaller@redhat.com>
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ libndp/libndp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libndp/libndp.c b/libndp/libndp.c
+index 899c2b0..ed72658 100644
+--- a/libndp/libndp.c
++++ b/libndp/libndp.c
+@@ -278,7 +278,7 @@ struct ndp_msgns {
+ };
+ 
+ struct ndp_msgna {
+-	struct nd_neighbor_solicit *na; /* must be first */
++	struct nd_neighbor_advert *na; /* must be first */
+ };
+ 
+ struct ndp_msgr {
+-- 
+2.5.5
+

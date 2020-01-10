@@ -1,0 +1,80 @@
+From 9be7e45d57d7c65d01c15819df0e864b25275dbe Mon Sep 17 00:00:00 2001
+From: Thomas Haller <thaller@redhat.com>
+Date: Thu, 10 Mar 2016 11:55:54 +0100
+Subject: [PATCH 6/6] libndp: revert API change for ndp_msg_send() and add
+ ndp_msg_send_with_flags()
+
+Fixes: cb1ab5fc8b ("libndp: add option flags to send messages")
+Signed-off-by: Thomas Haller <thaller@redhat.com>
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+---
+ include/ndp.h   |  3 ++-
+ libndp/libndp.c | 17 ++++++++++++++++-
+ utils/ndptool.c |  2 +-
+ 3 files changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/include/ndp.h b/include/ndp.h
+index 09b234f..0dc1468 100644
+--- a/include/ndp.h
++++ b/include/ndp.h
+@@ -79,7 +79,8 @@ enum ndp_msg_type ndp_msg_type(struct ndp_msg *msg);
+ struct in6_addr *ndp_msg_addrto(struct ndp_msg *msg);
+ uint32_t ndp_msg_ifindex(struct ndp_msg *msg);
+ void ndp_msg_ifindex_set(struct ndp_msg *msg, uint32_t ifindex);
+-int ndp_msg_send(struct ndp *ndp, struct ndp_msg *msg, uint8_t flags);
++int ndp_msg_send(struct ndp *ndp, struct ndp_msg *msg);
++int ndp_msg_send_with_flags(struct ndp *ndp, struct ndp_msg *msg, uint8_t flags);
+ 
+ uint8_t ndp_msgra_curhoplimit(struct ndp_msgra *msgra);
+ void ndp_msgra_curhoplimit_set(struct ndp_msgra *msgra, uint8_t curhoplimit);
+diff --git a/libndp/libndp.c b/libndp/libndp.c
+index ed72658..8b7e609 100644
+--- a/libndp/libndp.c
++++ b/libndp/libndp.c
+@@ -700,6 +700,21 @@ void ndp_msg_ifindex_set(struct ndp_msg *msg, uint32_t ifindex)
+  * ndp_msg_send:
+  * @ndp: libndp library context
+  * @msg: message structure
++ *
++ * Send message.
++ *
++ * Returns: zero on success or negative number in case of an error.
++ **/
++NDP_EXPORT
++int ndp_msg_send(struct ndp *ndp, struct ndp_msg *msg)
++{
++	return ndp_msg_send_with_flags(ndp, msg, ND_OPT_NORMAL);
++}
++
++/**
++ * ndp_msg_send_with_flags:
++ * @ndp: libndp library context
++ * @msg: message structure
+  * @flags: option flags within message type
+  *
+  * Send message.
+@@ -707,7 +722,7 @@ void ndp_msg_ifindex_set(struct ndp_msg *msg, uint32_t ifindex)
+  * Returns: zero on success or negative number in case of an error.
+  **/
+ NDP_EXPORT
+-int ndp_msg_send(struct ndp *ndp, struct ndp_msg *msg, uint8_t flags)
++int ndp_msg_send_with_flags(struct ndp *ndp, struct ndp_msg *msg, uint8_t flags)
+ {
+ 	enum ndp_msg_type msg_type = ndp_msg_type(msg);
+ 
+diff --git a/utils/ndptool.c b/utils/ndptool.c
+index 2639f81..1d96f4c 100644
+--- a/utils/ndptool.c
++++ b/utils/ndptool.c
+@@ -344,7 +344,7 @@ static int run_cmd_send(struct ndp *ndp, enum ndp_msg_type msg_type,
+ 	}
+ 	ndp_msg_ifindex_set(msg, ifindex);
+ 
+-	err = ndp_msg_send(ndp, msg, flags);
++	err = ndp_msg_send_with_flags(ndp, msg, flags);
+ 	if (err) {
+ 		pr_err("Failed to send message\n");
+ 		goto msg_destroy;
+-- 
+2.5.5
+
