@@ -1,11 +1,13 @@
 Name: libndp
 Version: 1.2
-Release: 1%{?dist}
+Release: 4%{?dist}
 Summary: Library for Neighbor Discovery Protocol
 Group: System Environment/Libraries
 License: LGPLv2+
 URL: http://www.libndp.org/
 Source: http://www.libndp.org/files/libndp-%{version}.tar.gz
+
+Patch0: 0001-libndp-fix-cppcheck-Undefined-behavior-Variable-buf-.patch
 
 %description
 This package contains a library which provides a wrapper
@@ -23,6 +25,7 @@ necessary for developing programs using libndp.
 
 %prep
 %setup -q
+%patch0 -p1 -b .fix_cppcheck_var_buf
 
 %build
 %configure --disable-static
@@ -48,6 +51,15 @@ find $RPM_BUILD_ROOT -name \*.la -delete
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.2-4
+- Mass rebuild 2014-01-24
+
+* Tue Jan 21 2014 Jiri Pirko <jpirko@redhat.com> - 1.2-3
+- libndp: fix [cppcheck] Undefined behavior: Variable 'buf' is used as parameter and destination in s[n]printf() [1044084]
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1.2-2
+- Mass rebuild 2013-12-27
+
 * Tue Oct 15 2013 Jiri Pirko <jpirko@redhat.com> - 1.2-1
 - Update to 1.2
 - libndp: silently ignore packets with optlen 0 [1016064]

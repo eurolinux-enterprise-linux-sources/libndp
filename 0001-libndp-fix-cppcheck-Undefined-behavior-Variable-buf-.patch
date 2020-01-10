@@ -1,0 +1,41 @@
+From 4376e752c822444f1a26b5e1e974ddd7104ae15c Mon Sep 17 00:00:00 2001
+From: Jiri Pirko <jiri@resnulli.us>
+Date: Wed, 18 Dec 2013 13:26:49 +0100
+Subject: [patch] libndp: fix [cppcheck] Undefined behavior: Variable 'buf' is
+ used as parameter and destination in s[n]printf()
+
+cppcheck --enable=all --inconclusive --std=posix .
+
+ndp_msg_opt_dnssl_domain():
+			if (dom_len > len)
+				return NULL;
+
+			if (strlen(buf))
+---->				sprintf(buf, "%s.", buf);
+			buf[strlen(buf) + dom_len] = '\0';
+			memcpy(buf + strlen(buf), ptr, dom_len);
+
+So just use strcat instead.
+
+Reported-by: Dan Williams <dcbw@redhat.com>
+Signed-off-by: Jiri Pirko <jiri@resnulli.us>
+---
+ libndp/libndp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libndp/libndp.c b/libndp/libndp.c
+index 0bc3fe3..e510e2e 100644
+--- a/libndp/libndp.c
++++ b/libndp/libndp.c
+@@ -1540,7 +1540,7 @@ char *ndp_msg_opt_dnssl_domain(struct ndp_msg *msg, int offset,
+ 				return NULL;
+ 
+ 			if (strlen(buf))
+-				sprintf(buf, "%s.", buf);
++				strcat(buf, ".");
+ 			buf[strlen(buf) + dom_len] = '\0';
+ 			memcpy(buf + strlen(buf), ptr, dom_len);
+ 			ptr += dom_len;
+-- 
+1.8.4.2
+
