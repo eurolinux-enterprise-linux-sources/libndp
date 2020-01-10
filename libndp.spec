@@ -1,6 +1,6 @@
 Name: libndp
 Version: 1.2
-Release: 4%{?dist}
+Release: 6%{?dist}
 Summary: Library for Neighbor Discovery Protocol
 Group: System Environment/Libraries
 License: LGPLv2+
@@ -8,6 +8,8 @@ URL: http://www.libndp.org/
 Source: http://www.libndp.org/files/libndp-%{version}.tar.gz
 
 Patch0: 0001-libndp-fix-cppcheck-Undefined-behavior-Variable-buf-.patch
+Patch1: 0001-libndp-validate-the-IPv6-hop-limit.patch
+Patch2: 0002-libndb-reject-redirect-and-router-advertisements-fro.patch
 
 %description
 This package contains a library which provides a wrapper
@@ -26,6 +28,8 @@ necessary for developing programs using libndp.
 %prep
 %setup -q
 %patch0 -p1 -b .fix_cppcheck_var_buf
+%patch1 -p1 -b .hop-limit
+%patch2 -p1 -b .link-local
 
 %build
 %configure --disable-static
@@ -51,6 +55,13 @@ find $RPM_BUILD_ROOT -name \*.la -delete
 %{_libdir}/pkgconfig/*.pc
 
 %changelog
+* Sat May 14 2016 Lubomir Rintel <lrintel@redhat.com> - 1.2-6
+- libndp: fix hop limit validation [CVE-2016-3698]
+
+* Fri May 06 2016 Lubomir Rintel <lrintel@redhat.com> - 1.2-5
+- libndp: validate the IPv6 hop limit [CVE-2016-3698]
+- libndb: reject redirect and router advertisements from non-link-local [CVE-2016-3698]
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1.2-4
 - Mass rebuild 2014-01-24
 
